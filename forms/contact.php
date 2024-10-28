@@ -1,41 +1,44 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+// Aktifkan error reporting untuk debug
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+// Memuat file PHPMailer
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $mail = new PHPMailer(true);
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+    try {
+        // Pengaturan SMTP
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'ddermdangnwn@gmail.com'; // Ganti dengan email Gmail Anda
+        $mail->Password   = 'uszg uuad fhos rqbs'; // Ganti dengan App Password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+        // Menentukan penerima dan pengirim email
+        $mail->setFrom('ddermdangnwn@gmail.com', 'Contact Form'); // Ganti dengan email pengirim Anda
+        $mail->addAddress('ddermdangnwn@gmail.com'); // Ganti dengan email tujuan
 
-  echo $contact->send();
+        // Mengambil subjek dari input form
+        $mail->Subject = isset($_POST['subject']) && !empty($_POST['subject']) ? $_POST['subject'] : "No Subject";
+
+        // Pengaturan isi email
+        $mail->isHTML(true);
+        $mail->Body = 'Name: ' . htmlspecialchars($_POST['name']) . '<br>Email: ' . htmlspecialchars($_POST['email']) . '<br>Message: ' . htmlspecialchars($_POST['message']);
+
+        $mail->send();
+        echo 'Your message has been sent. Thank you!';
+    } catch (Exception $e) {
+        echo "Pesan tidak dapat dikirim. Kesalahan: {$mail->ErrorInfo}";
+    }
+}
 ?>
